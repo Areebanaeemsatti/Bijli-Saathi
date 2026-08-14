@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-main: #0B1914;
+    --card-bg: #12261F;
+    --card-border: #1B392F;
+    --emerald-primary: #059669;
+    --emerald-glow: #10B981;
+    --electric-accent: #34D399;
+    --gold-accent: #F59E0B;
+    --text-primary: #F9FAFB;
+    --text-secondary: #9CA3AF;
+  }
+
+  body {
+    background-color: #081410;
+    color: #F3F4F6;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* RTL support for Urdu language */
+  [dir="rtl"] {
+    font-family: 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', 'Segoe UI', system-ui, sans-serif;
+  }
+}
+
+/* Custom glassmorphism and ambient glow utilities */
+.glass-panel {
+  background: rgba(18, 38, 31, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-panel-hover:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.2);
+  transform: translateY(-2px);
+}
+
+.electric-glow {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+}
+
+.electric-border-glow {
+  border-color: #10B981;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.gold-glow {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+/* Smooth micro scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #081410;
+}
+::-webkit-scrollbar-thumb {
+  background: #1B392F;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #10B981;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s infinite ease-in-out;
+}
