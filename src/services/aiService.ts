@@ -74,7 +74,7 @@ export async function analyzeBillFile(
 
     console.log("[FILE CONVERSION SUCCESS]");
 
-    const rawAIResult = await callGeminiInteractionsAPI(
+    const rawAIResult = await callGeminiAPI(
       base64,
       file.type
     );
@@ -131,7 +131,7 @@ function fileToBase64(file: File): Promise<string> {
  * IMPORTANT:
  * No Gemini API key exists in this function.
  */
-async function callGeminiInteractionsAPI(
+async function callGeminiAPI(
   base64Data: string,
   mimeType: string
 ): Promise<BillAnalysisResult> {
@@ -283,7 +283,7 @@ Rules:
     };
   } catch (error) {
     console.error(
-      "[INTERACTIONS API ERROR]",
+      "[GEMINI API ERROR]",
       error
     );
 
