@@ -296,7 +296,14 @@ Rules:
 }
 
 /**
- * Extract model text from the Interactions API response.
+ * Extract model text from the Gemini generateContent response.
+ *
+ * Response shape:
+ * {
+ *   candidates: [
+ *     { content: { parts: [ { text: "..." } ] } }
+ *   ]
+ * }
  */
 function extractTextFromGeminiResponse(
   response: any
@@ -305,37 +312,23 @@ function extractTextFromGeminiResponse(
     return "";
   }
 
-  // Common Interactions API response format
-  if (typeof response.output_text === "string") {
-    return response.output_text;
-  }
+  // Standard generateContent format
+  if (Array.isArray(response.candidates)) {
+    for (const candidate of response.candidates) {
+      const parts = candidate?.content?.parts;
 
-  // Output array
-  if (Array.isArray(response.output)) {
-    for (const item of response.output) {
-      if (typeof item === "string") {
-        return item;
-      }
+      if (Array.isArray(parts)) {
+        const combined = parts
+          .map((part: any) =>
+            typeof part?.text === "string"
+              ? part.text
+              : ""
+          )
+          .join("");
 
-      if (typeof item?.text === "string") {
-        return item.text;
-      }
-
-      if (Array.isArray(item?.content)) {
-        for (const content of item.content) {
-          if (typeof content?.text === "string") {
-            return content.text;
-          }
+        if (combined) {
+          return combined;
         }
-      }
-    }
-  }
-
-  // Older/content-based response fallback
-  if (Array.isArray(response.content)) {
-    for (const item of response.content) {
-      if (typeof item?.text === "string") {
-        return item.text;
       }
     }
   }

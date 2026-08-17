@@ -3,8 +3,8 @@ import type {
   VercelResponse
 } from "@vercel/node";
 
-const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/interactions";
+const GEMINI_BASE_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models";
 
 export default async function handler(
   req: VercelRequest,
@@ -59,52 +59,47 @@ export default async function handler(
         ""
       );
 
-    let fileInput;
-
     if (
-      cleanMimeType.startsWith(
+      !cleanMimeType.startsWith(
         "image/"
-      )
+      ) &&
+      cleanMimeType !==
+        "application/pdf"
     ) {
-      fileInput = {
-        type: "image",
-        mime_type: cleanMimeType,
-        data: base64Data
-      };
-    } else if (
-      cleanMimeType ===
-      "application/pdf"
-    ) {
-      fileInput = {
-        type: "document",
-        mime_type:
-          "application/pdf",
-        data: base64Data
-      };
-    } else {
       return res.status(400).json({
         error:
           `Unsupported file type: ${cleanMimeType}`
       });
     }
 
+    // Gemini generateContent request shape:
+    // contents -> parts (text + inline_data with base64)
     const payload = {
-      model: cleanModel,
-
-      input: [
+      contents: [
         {
-          type: "text",
-          text: systemPrompt
-        },
-        fileInput
+          role: "user",
+          parts: [
+            {
+              text: systemPrompt
+            },
+            {
+              inline_data: {
+                mime_type:
+                  cleanMimeType,
+                data: base64Data
+              }
+            }
+          ]
+        }
       ],
-
-      response_format: {
-        type: "text",
-        mime_type:
+      generationConfig: {
+        responseMimeType:
           "application/json"
       }
     };
+
+    const geminiUrl =
+      `${GEMINI_BASE_URL}/${cleanModel}:generateContent`;
 
     console.log(
       "[SERVER] Calling Gemini:",
@@ -112,7 +107,7 @@ export default async function handler(
     );
 
     const response =
-      await fetch(GEMINI_URL, {
+      await fetch(geminiUrl, {
         method: "POST",
 
         headers: {
