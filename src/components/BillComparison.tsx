@@ -10,10 +10,19 @@ interface BillComparisonProps {
 
 export const BillComparison: React.FC<BillComparisonProps> = ({ bill, currentLang }) => {
   const t = TRANSLATIONS[currentLang].results;
-  const billDiff = bill.currentBill - bill.previousBill;
-  const unitDiff = bill.currentUnits - bill.previousUnits;
-  const maxUnits = Math.max(bill.currentUnits, bill.previousUnits, 1);
-  const maxBill = Math.max(bill.currentBill, bill.previousBill, 1);
+
+  // A single uploaded bill may not include previous-month data, so coerce all
+  // numeric fields to safe numbers to avoid runtime crashes (e.g. undefined.toLocaleString()).
+  const toNumber = (value: unknown) =>
+    typeof value === 'number' && Number.isFinite(value) ? value : 0;
+  const currentBill = toNumber(bill.currentBill);
+  const previousBill = toNumber(bill.previousBill);
+  const currentUnits = toNumber(bill.currentUnits);
+  const previousUnits = toNumber(bill.previousUnits);
+
+  const billDiff = currentBill - previousBill;
+  const unitDiff = currentUnits - previousUnits;
+  const maxBill = Math.max(currentBill, previousBill, 1);
 
   return (
     <div className="bg-[#12261F] border border-[#1B392F] rounded-3xl p-6 sm:p-8 shadow-xl">
@@ -41,16 +50,16 @@ export const BillComparison: React.FC<BillComparisonProps> = ({ bill, currentLan
             {t.previousMonth}
           </span>
           <div className="text-2xl font-black text-gray-300 font-mono mt-1">
-            Rs. {bill.previousBill.toLocaleString()}
+            Rs. {previousBill.toLocaleString()}
           </div>
           <div className="text-xs font-mono text-emerald-400/80 mt-1 flex items-center gap-1">
-            <span>{bill.previousUnits} {t.unitsLabel}</span>
+            <span>{previousUnits} {t.unitsLabel}</span>
           </div>
 
           <div className="mt-4 w-full bg-[#12261F] h-2.5 rounded-full overflow-hidden">
             <div
               className="bg-gray-500 h-full rounded-full"
-              style={{ width: `${(bill.previousBill / maxBill) * 100}%` }}
+              style={{ width: `${(previousBill / maxBill) * 100}%` }}
             />
           </div>
         </div>
@@ -64,16 +73,16 @@ export const BillComparison: React.FC<BillComparisonProps> = ({ bill, currentLan
             {t.currentMonth}
           </span>
           <div className="text-3xl font-black text-white font-mono mt-1">
-            Rs. {bill.currentBill.toLocaleString()}
+            Rs. {currentBill.toLocaleString()}
           </div>
           <div className="text-xs font-mono text-emerald-400 mt-1 font-bold">
-            {bill.currentUnits} {t.unitsLabel}
+            {currentUnits} {t.unitsLabel}
           </div>
 
           <div className="mt-4 w-full bg-[#12261F] h-2.5 rounded-full overflow-hidden">
             <div
               className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full"
-              style={{ width: `${(bill.currentBill / maxBill) * 100}%` }}
+              style={{ width: `${(currentBill / maxBill) * 100}%` }}
             />
           </div>
         </div>
@@ -92,13 +101,13 @@ export const BillComparison: React.FC<BillComparisonProps> = ({ bill, currentLan
               {billDiff >= 0 ? '+' : ''}Rs. {billDiff.toLocaleString()}
             </div>
             <p className="text-xs text-gray-300 mt-1">
-              {unitDiff >= 0 ? `+${unitDiff}` : unitDiff} units ({Math.round((unitDiff / Math.max(1, bill.previousUnits)) * 100)}% change)
+              {unitDiff >= 0 ? `+${unitDiff}` : unitDiff} units ({Math.round((unitDiff / Math.max(1, previousUnits)) * 100)}% change)
             </p>
           </div>
 
           <div className="mt-4 pt-3 border-t border-[#1B392F]/60 flex items-center justify-between text-xs font-bold text-gray-300">
             <span>Unit Shift</span>
-            <span className="font-mono text-emerald-400">{bill.previousUnits}u → {bill.currentUnits}u</span>
+            <span className="font-mono text-emerald-400">{previousUnits}u → {currentUnits}u</span>
           </div>
         </div>
       </div>
